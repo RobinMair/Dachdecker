@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+<h:head>
+</h:head>
+<h:body>
+    <h1 class="ui-title">Dachdecker Mair</h1>
+    <h:form id="form">
+        <p:panel>
+            <p:panelGrid columns="3" layout="grid" id="menue">
+                <p:commandButton value="Aufträge" actionListener="#{indexController.switchToAufträge}" update=":form:aufträge :form:mitarbeiter :form:baumaterial" ></p:commandButton>
+                <p:commandButton value="Mitarbeiter" actionListener="#{indexController.switchToMitarbeiter}" update=":form:aufträge form:mitarbeiter :form:baumaterial" ></p:commandButton>
+                <p:commandButton value="Baumaterial" actionListener="#{indexController.switchToBM}" update=":form:aufträge :form:mitarbeiter :form:baumaterial" ></p:commandButton>
+            </p:panelGrid>
+        </p:panel>
+        <p:panel header="Aufträge" visible="#{indexController.aufträgesichtbar}" id="aufträge">
+            <p:dataTable id="allAssignments" var="auftrag" value="#{indexController.aufträge}" selectionMode="single" selection="#{indexController.selectedAuftrag}" rowKey="#{auftrag.id}">
+                <p:ajax event="rowSelect" listener="#{indexController.onRowSelect}" update=":form:status"></p:ajax>
+                <p:column headerText="Kundenname">
+                    <h:outputText value="#{auftrag.kundenName}" />
+                </p:column>
+                <p:column headerText="Adresse">
+                    <h:outputText value="#{auftrag.adresse}" />
+                </p:column>
+                <p:column headerText="Auftragsstatus">
+                    <h:outputText value="#{auftrag.auftragsstatus.toString()}" />
+                </p:column>
+            </p:dataTable>
+
+            <p:panel header="#{indexController.status}" id="status">
+                <p:panelGrid columns="2" layout="grid" id="actstatus">
+                    <p:selectOneRadio id="console" value="#{indexController.auftragsstatus}">
+                        <f:selectItem itemLabel="ANGEFRAGT" itemValue="ANGEFRAGT" />
+                        <f:selectItem itemLabel="ABGELEHNT" itemValue="ABGELEHNT" />
+                        <f:selectItem itemLabel="ANGENOMMEN" itemValue="ANGENOMMEN" />
+                        <f:selectItem itemLabel="BEGONNEN" itemValue="BEGONNEN" />
+                        <f:selectItem itemLabel="ERLEDIGT" itemValue="ERLEDIGT" />
+                    </p:selectOneRadio>
+
+                    <p:commandButton value="Ok" actionListener="#{indexController.statuschanged}" update="allAssignments"></p:commandButton>
+                </p:panelGrid>
+            </p:panel>
+
+            <p:panel header="Neuen Auftrag anlegen">
+                <p:panelGrid columns="2" layout="grid" id="aData">
+                    <p:outputLabel value="Kundenname:"></p:outputLabel>
+                    <p:inputText value="#{indexController.newAuftrag.kundenName}"></p:inputText>
+
+                    <p:outputLabel value="Adresse:"></p:outputLabel>
+                    <p:inputText value="#{indexController.newAuftrag.adresse}"></p:inputText>
+
+                    <p:commandButton value="Speichern" actionListener="#{indexController.saveAuftrag}" update="allAssignments" ></p:commandButton>
+                </p:panelGrid>
+            </p:panel>
+        </p:panel>
+
+        <p:panel header="Mitarbeiter" visible="#{indexController.mitarbeitersichtbar}" id="mitarbeiter">
+
+            <p:dataTable id="allEmployees" var="employee" value="#{indexController.mitarbeiter}" selectionMode="single" selection="#{indexController.selectedMitarbeiter}" rowKey="#{employee.id}">
+                <p:ajax event="rowSelect" listener="#{indexController.onMitarbeiterSelect}" update=":form:status"></p:ajax>
+                <p:column headerText="Position">
+                    <h:outputText value="#{employee.position}" />
+                </p:column>
+                <p:column headerText="Nachname">
+                    <h:outputText value="#{employee.lastName}" />
+                </p:column>
+                <p:column headerText="Vorname">
+                    <h:outputText value="#{employee.firstName}" />
+                </p:column>
+                <p:column headerText="Email">
+                    <h:outputText value="#{employee.email}" />
+                </p:column>
+                <p:column headerText="Beschäftigt">
+                    <h:selectBooleanCheckbox value="#{employee.beschaeftigt}"></h:selectBooleanCheckbox>
+                    <p:commandButton value="Setzen" actionListener="#{indexController.updateEmp(employee)}" update="allEmployees"></p:commandButton>
+                </p:column>
+                <p:column>
+                    <p:commandButton value="Kündigen" actionListener="#{indexController.fireEmp(employee)}" update="allEmployees"></p:commandButton>
+                </p:column>
+            </p:dataTable>
+
+            <p:panel header="Neuer Mitarbeiter">
+                <p:panelGrid columns="2" layout="grid" id="mData">
+                    <p:outputLabel value="Vorname:"></p:outputLabel>
+                    <p:inputText value="#{indexController.newMitarbeiter.firstName}"></p:inputText>
+
+                    <p:outputLabel value="Nachname:"></p:outputLabel>
+                    <p:inputText value="#{indexController.newMitarbeiter.lastName}"></p:inputText>
+
+                    <p:outputLabel value="Email:"></p:outputLabel>
+                    <p:inputText value="#{indexController.newMitarbeiter.email}"></p:inputText>
+
+                    <p:outputLabel value="Position:"></p:outputLabel>
+                    <p:inputText value="#{indexController.newMitarbeiter.position}"></p:inputText>
+
+                    <p:commandButton value="Speichern" actionListener="#{indexController.saveMitarbeiter}" update="allEmployees" ></p:commandButton>
+                </p:panelGrid>
+            </p:panel>
+        </p:panel>
+
+        <p:panel header="Baumaterial" visible="#{indexController.bmsichtbar}" id="baumaterial">
+            <p:dataTable id="allMaterials" var="material" value="#{indexController.bms}">
+                <p:column headerText="Material">
+                    <h:outputText value="#{material.material}" />
+                </p:column>
+                <p:column headerText="Preis/Kilo">
+                    <h:outputText value="#{material.preisprokilo}" />
+                </p:column>
+            </p:dataTable>
+
+            <p:panel header="Neuer Mitarbeiter">
+                <p:panelGrid columns="2" layout="grid" id="bData">
+                    <p:outputLabel value="Material:"></p:outputLabel>
+                    <p:inputText value="#{indexController.newBaumaterial.material}"></p:inputText>
+
+                    <p:outputLabel value="Preis/Kilo:"></p:outputLabel>
+                    <p:inputText value="#{indexController.newBaumaterial.preisprokilo}"></p:inputText>
+
+                    <p:commandButton value="Speichern" actionListener="#{indexController.saveBM}" update="allMaterials" ></p:commandButton>
+                </p:panelGrid>
+            </p:panel>
+        </p:panel>
+
+    </h:form>
+</h:body>
+</html>
